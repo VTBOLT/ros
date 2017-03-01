@@ -38,8 +38,8 @@ int main(int argc, char **argv)
 
   
   std::cout << "can test begin" << std::endl;
-  InterfaceCan obj;
-  obj.runCan();
+  //InterfaceCan obj;
+  //obj.runCan();
   //char* pass_var[2];
   //pass_var[0] = " ";
   //pass_var[1] = "can0";
@@ -47,8 +47,14 @@ int main(int argc, char **argv)
   //canrecieve(argc, &argv[2]);
   std::cout << "can test end" << std::endl;
 
+  struct canfd_frame message;
+  char* argv2[2];
+  argv2[0] = " ";
+  argv2[1] = "can0";
   
-  while (ros::ok() && !inputStream.fail())
+  
+  //while (ros::ok() && !inputStream.fail())
+  while (ros::ok())
     {
       
       //std_msgs::Int16 msg;
@@ -59,15 +65,21 @@ int main(int argc, char **argv)
 
       std::string name;
       std::string value;
+      signed short batterytemp = 0;
       
       std_msgs::String msg;
       std::stringstream stream;
       
-      inputStream >> name >> value;
-      msg.data = name + " " + value;
+      //inputStream >> name >> value;
+      //msg.data = name + " " + value;
+      message = canrecieve(2, argv2);
 
-      if(name == "msg1"){
+      
+      if(message.can_id == 0x183){
 	//ROS_INFO("msg1: %s", msg.data);
+	batterytemp = (message.data[5] << 8 | message.data[4]);
+	inputStream >> batterytemp;
+	msg.data = batterytemp;
 	std::cout << "send msg1: " << msg.data << std::endl;
 	chatter_pub_msg1.publish(msg);
       }
