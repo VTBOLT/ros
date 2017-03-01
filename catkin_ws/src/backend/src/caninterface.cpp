@@ -61,7 +61,7 @@ void InterfaceCan::runCan() {
       message = canrecieve(2, argv2);
       if (message.len > 0)
 	{
-	  std::cout << message.can_id << std::endl;
+	  //std::cout << message.can_id << std::endl;
 	  switch(message.can_id)
 	    {
 	    case 0x186:

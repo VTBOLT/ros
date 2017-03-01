@@ -6,8 +6,8 @@
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 #include "std_msgs/Int16.h"
-//#include "/home/pi/catkin_ws/src/can/canrecieve.cpp"
-//#include "caninterface.cpp"
+#include "/home/pi/catkin_ws/src/backend/can/canrecieve.cpp"
+#include "caninterface.cpp"
 
 #include <fstream>
 #include <sstream>
@@ -37,15 +37,15 @@ int main(int argc, char **argv)
     std::cout << "file did not open" << std::endl;
 
   
-  //std::cout << "can test begin" << std::endl;
-  //InterfaceCan obj;
-  //obj.runCan();
+  std::cout << "can test begin" << std::endl;
+  InterfaceCan obj;
+  obj.runCan();
   //char* pass_var[2];
   //pass_var[0] = " ";
   //pass_var[1] = "can0";
   //canrecieve(2, pass_var);
   //canrecieve(argc, &argv[2]);
-  //std::cout << "can test end" << std::endl;
+  std::cout << "can test end" << std::endl;
 
   
   while (ros::ok() && !inputStream.fail())

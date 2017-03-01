@@ -15,17 +15,17 @@ find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs genmsg)
 catkin_package()
 
 ## Build talker and listener
-include_directories(include ${catkin_INCLUDE_DIRS} /src/can)
+include_directories(include ${catkin_INCLUDE_DIRS} can/)
 
 add_executable(talker src/talker.cpp)
 target_link_libraries(talker ${catkin_LIBRARIES})
 #add_dependencies(talker beginner_tutorials_generate_messages_cpp)
-add_dependencies(talker src/can/canrecieve.cpp src/interfacecan.cpp)
+add_dependencies(talker can/canrecieve.cpp can/interfacecan.cpp)
 
 add_executable(listener1 src/listener1.cpp)
 target_link_libraries(listener1 ${catkin_LIBRARIES})
-add_dependencies(listener1 beginner_tutorials_generate_messages_cpp)
+#add_dependencies(listener1)
 
 add_executable(listener2 src/listener2.cpp)
 target_link_libraries(listener2 ${catkin_LIBRARIES})
-add_dependencies(listener2 beginner_tutorials_generate_messages_cpp)
+#add_dependencies(listener2) 
