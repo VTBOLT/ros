@@ -1,16 +1,17 @@
-//file ex.
-//msg1 5
-//msg1 3
-//msg2 2
-//...
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 #include "std_msgs/Int16.h"
-#include "/home/pi/catkin_ws/src/backend/can/canrecieve.cpp"
+#include "canrecieve.cpp"
 #include "caninterface.cpp"
+#include "/home/pi/catkin_ws/devel/include/backend/can_msg.h"
+#include "/home/pi/catkin_ws/devel/include/backend/motor_msg.h"
+#include "/home/pi/catkin_ws/devel/include/backend/batterytemp_msg.h"
+#include "/home/pi/catkin_ws/devel/include/backend/temp_msg.h"
+#include "/home/pi/catkin_ws/devel/include/backend/current_msg.h"
+#include "/home/pi/catkin_ws/devel/include/backend/emcy6_msg.h"
+#include "/home/pi/catkin_ws/devel/include/backend/emcy7_msg.h"
+#include "/home/pi/catkin_ws/devel/include/backend/drive7_msg.h"
 
-#include <fstream>
-#include <sstream>
 #include <iostream>
 #include <string>
 
@@ -20,82 +21,141 @@ int main(int argc, char **argv)
 
   ros::NodeHandle n;
 
-  //ros::Publisher chatter_pub = n.advertise<std_msgs::Int16>("chatter", 1000);
-  //ros::Publisher chatter_pub = n.advertise<std_msgs::String>("chatter", 1000);
-  ros::Publisher chatter_pub_msg1 = n.advertise<std_msgs::String>("chatter_msg1", 1000);
-  ros::Publisher chatter_pub_msg2 = n.advertise<std_msgs::String>("chatter_msg2", 1000);
+  ros::Publisher chatter_can = n.advertise<backend::can_msg>("chatter_can", 1000);
+  ros::Publisher chatter_motor = n.advertise<backend::motor_msg>("chatter_motor", 1000);
+  ros::Publisher chatter_batterytemp = n.advertise<backend::batterytemp_msg>("chatter_batterytemp", 1000);
+  ros::Publisher chatter_temp = n.advertise<backend::temp_msg>("chatter_temp", 1000);
+  ros::Publisher chatter_current = n.advertise<backend::current_msg>("chatter_current", 1000);
+  ros::Publisher chatter_emcy6 = n.advertise<backend::emcy6_msg>("chatter_emcy6", 1000);
+  ros::Publisher chatter_emcy7 = n.advertise<backend::emcy7_msg>("chatter_emcy7", 1000);
+  ros::Publisher chatter_drive7 = n.advertise<backend::drive7_msg>("chatter_drive7", 1000);
+
+	  
   
   ros::Rate loop_rate(10);
-
-  std::ifstream inputStream;
-  inputStream.open(argv[1]);
-  if(inputStream.is_open())
-    std::cout << "file is open: " << argv[1] << std::endl;
-  else if(argc < 2)
-    std::cout << "please specify file" << std::endl;
-  else
-    std::cout << "file did not open" << std::endl;
-
   
-  std::cout << "can test begin" << std::endl;
-  //InterfaceCan obj;
-  //obj.runCan();
-  //char* pass_var[2];
-  //pass_var[0] = " ";
-  //pass_var[1] = "can0";
-  //canrecieve(2, pass_var);
-  //canrecieve(argc, &argv[2]);
-  std::cout << "can test end" << std::endl;
-
   struct canfd_frame message;
   char* argv2[2];
   argv2[0] = " ";
   argv2[1] = "can0";
+  int count = 0;
   
-  
-  //while (ros::ok() && !inputStream.fail())
   while (ros::ok())
     {
       
-      //std_msgs::Int16 msg;
-      //short randVale = 5;
-      //msg.data = randValue;
-
-      //ROS_INFO("%d", msg.data);
-
       std::string name;
       std::string value;
       signed short batterytemp = 0;
+      signed short rpm = 0;
+      signed short RMS_current = 0;
+      signed short DC_voltage = 0;
+      signed short HS_temp = 0;
+      signed short motor_temp = 0;
+      signed short voltage_angle = 0;
+      signed short IQ_current = 0;
+      signed short EMCY6 = 0;
+      signed short EMCY7 = 0;
+      signed short drive6stat = 0;
+      signed short drive7stat = 0;
       
-      std_msgs::String msg;
-      std::stringstream stream;
+      backend::can_msg c_msg;
+      backend::motor_msg motor_msg;
+      backend::batterytemp_msg batterytemp_msg;
+      backend::temp_msg temp_msg;
+      backend::current_msg current_msg;
+      backend::emcy6_msg emcy6_msg;
+      backend::emcy7_msg emcy7_msg;
+      backend::drive7_msg drive7_msg;
+			 
       
-      //inputStream >> name >> value;
-      //msg.data = name + " " + value;
+      std::cout << "calling canrecieve" << std::endl;
       message = canrecieve(2, argv2);
 
-      
-      if(message.can_id == 0x183){
-	//ROS_INFO("msg1: %s", msg.data);
-	batterytemp = (message.data[5] << 8 | message.data[4]);
-	inputStream >> batterytemp;
-	msg.data = batterytemp;
-	std::cout << "send msg1: " << msg.data << std::endl;
-	chatter_pub_msg1.publish(msg);
-      }
-      else if(name == "msg2"){
-	std::cout << "send msg2: " << msg.data << std::endl;
-	chatter_pub_msg2.publish(msg);
-	
-      }
-      else{
-	std::cout << "End of File: exiting" << std::endl;
-	exit(0);
-      }
-      
-      std::cin.ignore();
-      
+      switch(message.can_id)
+	{
+	case 0x186:
+	  {
+	    rpm = (message.data[1] << 8 | message.data[0]);
+	    RMS_current = (message.data[7] << 8 | message.data[6]);
+	    DC_voltage = (message.data[5] << 8 | message.data[4]);
+	    drive6stat = (message.data[3] << 8 | message.data[2]);
+	    motor_msg.can_id = message.can_id;
+	    motor_msg.rpm = rpm;
+	    motor_msg.RMS_current;
+	    motor_msg.DC_voltage;
+	    motor_msg.drive6stat;
+	    chatter_motor.publish(motor_msg);
+	    ROS_INFO("[can_id], data: [%i], %i", motor_msg.can_id, motor_msg.rpm);
+	    break;
+	  }
+	case 0x183:
+	  {
+	    std:: cout << "battery temp" << std::endl;
+	    batterytemp = (message.data[5] << 8 | message.data[4]);
+	    batterytemp_msg.can_id = message.can_id;
+	    batterytemp_msg.data = batterytemp;
+	    chatter_batterytemp.publish(batterytemp_msg);
+	    ROS_INFO("[can_id], data: [%i], %i", batterytemp_msg.can_id, batterytemp_msg.data);
+	    break;
+	  }
+	case 0x286:
+	  {
+	    HS_temp = (message.data[1] << 8 | message.data[0]);
+	    motor_temp = (message.data[3] << 8 | message.data[2]);
+	    voltage_angle = (message.data[7] << 8 | message.data[6]);
+	    temp_msg.can_id = message.can_id;
+	    temp_msg.HS_temp = HS_temp;
+	    temp_msg.motor_temp = motor_temp;
+	    temp_msg.motor_temp = voltage_angle;
+	    ROS_INFO("[can_id], data: [%i], %i", temp_msg.can_id, temp_msg.HS_temp);
+	    chatter_temp.publish(temp_msg);
+	    break;
+	  }
+	case 0x386:
+	  {
+	    IQ_current = (message.data[1] << 8 | message.data[0]);
+	    current_msg.data = IQ_current;
+	    chatter_current.publish(current_msg);
+	    ROS_INFO("[can_id], data: [%i], %i", current_msg.can_id, current_msg.data);
+	    break;
+	  }
+	case 0x086:
+	  {
+	    EMCY6 = (message.data[1] << 8 | message.data[0]);
+	    emcy6_msg.data = EMCY6;
+	    chatter_emcy6.publish(emcy6_msg);
+	    ROS_INFO("[can_id], data: [%i], %i", emcy6_msg.can_id, emcy6_msg.data);
+	  break;
+	  }
+	case 0x087:
+	  {
+	    EMCY7 = (message.data[1] << 8 | message.data[0]);
+	    emcy7_msg.data = EMCY7;
+	    chatter_emcy7.publish(emcy7_msg);
+	    ROS_INFO("[can_id], data: [%i], %i", emcy7_msg.can_id, emcy7_msg.data);
+	    break;
+	  }
+	case 0x187:
+	  {
+	    drive7stat = (message.data[3] << 8 | message.data[2]);
+	    drive7_msg.data = drive7stat;
+	    chatter_drive7.publish(drive7_msg);
+	    ROS_INFO("[can_id], data: [%i], %i", drive7_msg.can_id, drive7_msg.data);
+	    break;
+	  }
+	}  
+      //c_msg.can_id = message.can_id;
+      //c_msg.data = batterytemp;
 
+
+      //chatter_can.publish(c_msg);
+      
+      std::string input;//allows exit, ctrl-c doesn't work, need to look into
+      //std::cin >> input;
+      if(count > 80)
+	exit(0);
+      else
+	count++;
       
       ros::spinOnce();
 
@@ -104,4 +164,4 @@ int main(int argc, char **argv)
 
 
   return 0;
-}
+    }

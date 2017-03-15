@@ -1,15 +1,18 @@
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 #include "std_msgs/Int16.h"
+#include <iostream>
 
-void chatterCallback_string(const std_msgs::String::ConstPtr& msg)
-{
- ROS_INFO("I heard: [%s]", msg->data.c_str());
-}
+#include "/home/pi/catkin_ws/devel/include/backend/can_msg.h"
 
-void chatterCallback_int(const std_msgs::Int16::ConstPtr& msg)
+//void chatterCallback_string(const std_msgs::String::ConstPtr& msg)
+void chatterCallback_string(const backend::can_msg::ConstPtr& msg)
 {
-  ROS_INFO("I heard: [%d]", msg->data);
+  //ROS_INFO("I heard: [%i]", msg->can_id);
+  ROS_INFO("[can_id], data: [%i], %i", msg->can_id, msg->data);
+  if(msg->can_id == 387)
+    std::cout << "battery temp signal" << std::endl;
+  
 }
 
 int main(int argc, char **argv)
@@ -18,7 +21,7 @@ int main(int argc, char **argv)
 
   ros::NodeHandle n;
 
-  ros::Subscriber sub = n.subscribe("chatter_msg1", 1000, chatterCallback_string);
+  ros::Subscriber sub = n.subscribe("chatter_can", 1000, chatterCallback_string);
 
   ros::spin();
 
