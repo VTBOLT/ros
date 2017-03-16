@@ -11,8 +11,6 @@ find_package(catkin REQUIRED COMPONENTS
   )
 
 ## Declare ROS messages and services
-#add_message_files(DIRECTORY msg FILES Num.msg)
-#add_service_files(DIRECTORY srv FILES AddTwoInts.srv)
 add_message_files(
   DIRECTORY
   msg
@@ -36,7 +34,7 @@ generate_messages(
 catkin_package()
 
 ## Build talker and listener
-include_directories(include ${catkin_INCLUDE_DIRS} can/ msg/)
+include_directories(include ${catkin_INCLUDE_DIRS} can/ msg/ ~/catkin_ws/devel/include/backend/)
 
 
 add_executable(talker src/talker.cpp)

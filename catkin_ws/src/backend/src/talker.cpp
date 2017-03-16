@@ -3,17 +3,16 @@
 #include "std_msgs/Int16.h"
 #include "canrecieve.cpp"
 #include "caninterface.cpp"
-#include "/home/pi/catkin_ws/devel/include/backend/can_msg.h"
-#include "/home/pi/catkin_ws/devel/include/backend/motor_msg.h"
-#include "/home/pi/catkin_ws/devel/include/backend/batterytemp_msg.h"
-#include "/home/pi/catkin_ws/devel/include/backend/temp_msg.h"
-#include "/home/pi/catkin_ws/devel/include/backend/current_msg.h"
-#include "/home/pi/catkin_ws/devel/include/backend/emcy6_msg.h"
-#include "/home/pi/catkin_ws/devel/include/backend/emcy7_msg.h"
-#include "/home/pi/catkin_ws/devel/include/backend/drive7_msg.h"
+#include "can_msg.h"
+#include "motor_msg.h"
+#include "batterytemp_msg.h"
+#include "temp_msg.h"
+#include "current_msg.h"
+#include "emcy6_msg.h"
+#include "emcy7_msg.h"
+#include "drive7_msg.h"
 
 #include <iostream>
-#include <string>
 
 int main(int argc, char **argv)
 {
@@ -68,7 +67,7 @@ int main(int argc, char **argv)
       backend::drive7_msg drive7_msg;
 			 
       
-      std::cout << "calling canrecieve" << std::endl;
+      //std::cout << "calling canrecieve" << std::endl;
       message = canrecieve(2, argv2);
 
       switch(message.can_id)
@@ -90,8 +89,9 @@ int main(int argc, char **argv)
 	  }
 	case 0x183:
 	  {
-	    std:: cout << "battery temp" << std::endl;
+
 	    batterytemp = (message.data[5] << 8 | message.data[4]);
+	    //std:: cout << "battery temp " << std::hex << batterytemp << std::endl;
 	    batterytemp_msg.can_id = message.can_id;
 	    batterytemp_msg.data = batterytemp;
 	    chatter_batterytemp.publish(batterytemp_msg);
@@ -144,14 +144,7 @@ int main(int argc, char **argv)
 	    break;
 	  }
 	}  
-      //c_msg.can_id = message.can_id;
-      //c_msg.data = batterytemp;
-
-
-      //chatter_can.publish(c_msg);
       
-      std::string input;//allows exit, ctrl-c doesn't work, need to look into
-      //std::cin >> input;
       if(count > 80)
 	exit(0);
       else
