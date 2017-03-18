@@ -2,7 +2,7 @@
 #include "std_msgs/String.h"
 #include "std_msgs/Int16.h"
 #include "canrecieve.cpp"
-#include "caninterface.cpp"
+//#include "caninterface.cpp"
 #include "can_msg.h"
 #include "motor_msg.h"
 #include "batterytemp_msg.h"
@@ -41,7 +41,7 @@ int main(int argc, char **argv)
   
   while (ros::ok())
     {
-      
+      std::cout << "while loop" << std::endl;
       std::string name;
       std::string value;
       signed short batterytemp = 0;
@@ -67,8 +67,8 @@ int main(int argc, char **argv)
       backend::drive7_msg drive7_msg;
 			 
       
-      //std::cout << "calling canrecieve" << std::endl;
-      message = canrecieve(2, argv2);
+      std::cout << "calling canrecieve" << std::endl;
+      message = canrecieve(2, argv2, std::cin);
 
       switch(message.can_id)
 	{

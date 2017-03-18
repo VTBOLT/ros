@@ -92,7 +92,7 @@ int idx2dindex(int ifidx, int socket) {
 	return i;
 }
 
-struct canfd_frame canrecieve(int argc, char **argv)
+struct canfd_frame canrecieve(int argc, char **argv, std::istream & expression)
 {
 	fd_set rdfs;
 	int s[MAXSOCK];
